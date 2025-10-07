@@ -33,7 +33,4 @@
   <ItemGroup>
     <Manifest Include="src\main.manifest" />
   </ItemGroup>
-  <ItemGroup>
-    <Text Include="readme.md" />
-  </ItemGroup>
 </Project>
