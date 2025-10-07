@@ -125,10 +125,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\benchmarks.cpp" />
+    <ClCompile Include="src\concurrentqueue\c_api\blockingconcurrentqueue.cpp" />
+    <ClCompile Include="src\concurrentqueue\c_api\concurrentqueue.cpp" />
     <ClCompile Include="src\logger.cpp" />
-    <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\concurrentqueue\blockingconcurrentqueue.h" />
+    <ClInclude Include="src\concurrentqueue\concurrentqueue.h" />
+    <ClInclude Include="src\concurrentqueue\c_api\concurrentqueue.h" />
+    <ClInclude Include="src\concurrentqueue\internal\concurrentqueue_internal_debug.h" />
+    <ClInclude Include="src\concurrentqueue\lightweightsemaphore.h" />
     <ClInclude Include="src\logger.hpp" />
     <ClInclude Include="src\main.hpp" />
   </ItemGroup>

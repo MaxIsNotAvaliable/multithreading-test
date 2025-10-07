@@ -144,6 +144,10 @@ BENCHMARK(dynamic<logger_with_atomic>)->Threads(threads)->Iterations(count);
 BENCHMARK(dynamic<logger_with_tbb_allocator>)->Threads(threads)->Iterations(count);
 #endif
 
+#ifdef logger_with_concurrentqueue
+BENCHMARK(dynamic<logger_with_concurrentqueue>)->Threads(threads)->Iterations(count);
+#endif
+
 template <class T>
 std::jthread create_logger() {
   std::binary_semaphore started{0};
@@ -232,6 +236,9 @@ int main(int argc, char** argv) {
 #endif
 #ifdef logger_with_tbb_allocator
   logger_threads.emplace_back(create_logger<logger_with_tbb_allocator>());
+#endif
+#ifdef logger_with_concurrentqueue
+  logger_threads.emplace_back(create_logger<logger_with_concurrentqueue>());
 #endif
 
   reporter reporter;

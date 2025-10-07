@@ -3,7 +3,9 @@
 #include <chrono>
 #include <thread>
 #include <mutex>
-#include <unordered_map>
+#include <atomic>
+
+#include "concurrentqueue/concurrentqueue.h"
 
 using namespace std::chrono_literals;
 
@@ -14,14 +16,14 @@ void print(std::string_view text);
 // Helper function, that reverses a singly linked list.
 template <class T>
 constexpr T* reverse(T* head) noexcept {
-	T* list = nullptr;
-	while (head) {
-		const auto next = head->next;
-		head->next = list;
-		list = head;
-		head = next;
-	}
-	return list;
+    T* list = nullptr;
+    while (head) {
+        const auto next = head->next;
+        head->next = list;
+        list = head;
+        head = next;
+    }
+    return list;
 }
 
 // =================================================================================================
@@ -60,7 +62,7 @@ constexpr T* reverse(T* head) noexcept {
 //	mutable std::mutex mutex_;
 //};
 
-class logger {
+class logger_with_mutex {
 public:
     // Queues the message. Called from multiple threads.
     void post(std::string text) {
@@ -106,5 +108,39 @@ private:
     std::condition_variable cv_;
 };
 
-#define logger logger
-#define logger_with_test logger
+
+// credits to https://github.com/cameron314/concurrentqueue
+class logger_with_concurrentqueue {
+public:
+    void post(std::string text) {
+        queue_.enqueue(std::move(text));
+        // enqueue — lock-free for MPSC (ConcurrentQueue)
+    }
+
+    void run(std::stop_token stop) {
+        std::string msg;
+        while (!stop.stop_requested()) {
+            // try to get message
+            if (queue_.try_dequeue(msg)) {
+                std::fputs(msg.data(), stdout);
+                std::fflush(stdout);
+            }
+            else {
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            }
+        }
+
+        // Выгребаем остатки
+        while (queue_.try_dequeue(msg)) {
+            std::fputs(msg.data(), stdout);
+        }
+        std::fflush(stdout);
+    }
+
+private:
+    moodycamel::ConcurrentQueue<std::string> queue_;
+};
+
+#define logger_with_mutex logger_with_mutex
+#define logger_with_concurrentqueue logger_with_concurrentqueue
+#define logger_with_test logger_with_concurrentqueue
